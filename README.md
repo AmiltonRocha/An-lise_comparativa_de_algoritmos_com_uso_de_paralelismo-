@@ -68,37 +68,38 @@ Os dados coletados permitem identificar padrões de desempenho através de:
 
 Os resultados obtidos demonstraram diferenças significativas de desempenho entre as abordagens:
 
-| Algoritmo | Dracula | Moby Dick | Don Quixote |
-|-----------|---------|-----------|-------------|
-| SerialCPU | ~0 ms | ~1 ms | ~5 ms |
-| ParallelCPU | ~0 ms | ~1 ms | ~4 ms |
-| ParallelGPU | ~2 ms | ~3 ms | ~3 ms |
+| Algoritmo | Dracula (~890 KB) | Moby Dick (~1,28 MB) | Don Quixote (~2,23 MB) |
+|-----------|-------------------|----------------------|------------------------|
+| SerialCPU | ~1 ms | ~2 ms | ~3 ms |
+| ParallelCPU[2] | ~1 ms | ~2 ms | ~7 ms |
+| ParallelCPU[4] | ~1 ms | ~1 ms | **~2 ms** |
+| ParallelCPU[8] | ~1 ms | ~2 ms | ~3 ms |
+| ParallelGPU | ~2 ms | ~3 ms | ~5 ms |
 
 *Resultados obtidos em máquina com processador Intel i5-10300H, GPU NVIDIA GTX 1650, 16GB RAM, Linux Mint.*
 
 ### Gráfico Comparativo
 
-O gráfico abaixo (gerado automaticamente pelo programa ao final da execução) ilustra a comparação entre os algoritmos:
-
 ![Gráfico de Desempenho](grafico.png)
-
-*Nota: A imagem do gráfico deve ser capturada da janela gerada pelo programa.*
 
 ### Discussão
 
-**Desempenho Serial vs Paralelo CPU**: Espera-se que o ParallelCPU apresente ganhos de desempenho proporcionais ao número de núcleos disponíveis. Em máquinas com múltiplos núcleos, a versão com 4 ou 8 threads tende a ser mais rápida que a serial e que a versão com apenas 2 threads. No entanto, o ganho não é linear devido ao overhead de gerenciamento das threads.
+**SerialCPU**: Apresentou tempos consistentes entre ~1–3 ms para todos os arquivos. É a abordagem mais simples e previsível, sem overhead de gerenciamento de threads ou transferência de dados.
 
-**Desempenho GPU**: A GPU pode apresentar tempos diferentes dependendo da disponibilidade de OpenCL e do hardware. Para textos muito grandes, a GPU tende a mostrar seu potencial, embora o overhead de transferência de dados (CPU → GPU → CPU) possa impactar o desempenho geral. Para textos pequenos, a versão serial pode ser mais rápida que a GPU devido a esse overhead.
+**ParallelCPU**: A configuração com **4 threads** obteve o melhor desempenho geral, especialmente no arquivo maior (Don Quixote: ~2 ms, contra ~3 ms do SerialCPU). Com 2 threads, houve maior variação (Don Quixote chegou a ~7 ms devido ao overhead de dividir o texto em apenas 2 partes). Com 8 threads, não houve ganho adicional — possivelmente pelo processador ter apenas 4 núcleos físicos (com hyper-threading), onde mais threads competem pelos mesmos recursos.
 
-**Impacto do Tamanho dos Dados**: Textos maiores tendem a beneficiar mais do paralelismo, pois o overhead de inicialização das threads e da GPU é amortizado pelo volume maior de processamento.
+**ParallelGPU**: A GPU apresentou tempos entre 2–5 ms, sendo **mais lenta que a CPU em todos os cenários** neste experimento. Isso ocorre porque o overhead de transferência dos dados (enviar o texto para a GPU, executar o kernel, e ler o resultado de volta) supera o tempo real de processamento. Para arquivos pequenos como Dracula (~890 KB), a GPU levou ~2 ms enquanto a CPU levou ~1 ms. Para textos muito maiores (centenas de MB), a GPU tende a compensar esse overhead.
+
+**Contagens**: Todos os métodos produziram as mesmas contagens — 188 ocorrências em Don Quixote, 8.104 em Dracula, e 14.727 em Moby Dick — validando a corretude das implementações paralelas.
 
 ## Conclusão
 
 Este trabalho demonstrou a implementação e análise comparativa de algoritmos de busca em diferentes paradigmas de processamento. Os resultados obtidos reforçam que:
 
-1. O paralelismo em CPU oferece ganhos de desempenho significativos para processamento de texto, especialmente com múltiplos núcleos.
-2. A GPU pode ser uma alternativa poderosa para processamento de grandes volumes, mas o overhead de comunicação deve ser considerado.
-3. A escolha da abordagem ideal depende do tamanho dos dados, do hardware disponível e das características específicas da aplicação.
+1. O paralelismo em CPU com 4 threads apresentou o melhor desempenho (Don Quixote: ~2 ms contra ~3 ms do serial), enquanto 8 threads não trouxe ganho adicional devido ao processador ter 4 núcleos físicos.
+2. A GPU (GTX 1650) foi mais lenta que a CPU em todos os cenários testados, pois o overhead de transferência de dados superou o tempo de processamento para textos de até ~2,2 MB.
+3. Todos os métodos paralelos produziram contagens idênticas ao método serial, validando a corretude das implementações.
+4. A escolha da abordagem ideal depende do tamanho dos dados, do hardware disponível e da relação entre overhead e processamento efetivo.
 
 A análise comparativa contribui para o entendimento prático dos trade-offs entre processamento serial, paralelo em CPU e paralelo em GPU, fornecendo insights valiosos para desenvolvedores e pesquisadores.
 
@@ -142,25 +143,29 @@ Trabalho IzequielAV3/
 
 **Compilação:**
 ```bash
-javac -cp jocl-2.0.4.jar src/AnalisadorTexto.java -d .
+javac -cp jocl-2.0.4.jar -d bin src/*.java
 ```
 
 **Execução:**
 ```bash
+# Compilar
+javac -cp jocl-2.0.4.jar -d bin src/*.java
+
 # Contar ocorrências da palavra "the" (padrão)
-java -cp .:jocl-2.0.4.jar AnalisadorTexto
+java -cp bin:jocl-2.0.4.jar AnalisadorTexto
 
 # Contar ocorrências de uma palavra específica
-java -cp .:jocl-2.0.4.jar AnalisadorTexto amor
+java -cp bin:jocl-2.0.4.jar AnalisadorTexto amor
 
-# Ou usar o script:
+# Ou usar o script (faz tudo automático):
 ./run.sh          # conta "the"
 ./run.sh amor     # conta "amor"
 ```
 
 **No Windows, usar `;` no lugar de `:` no classpath:**
 ```bash
-java -cp .;jocl-2.0.4.jar AnalisadorTexto
+javac -cp jocl-2.0.4.jar -d bin src\*.java
+java -cp bin;jocl-2.0.4.jar AnalisadorTexto
 ```
 
 ### Bibliotecas Necessárias

@@ -2,4 +2,3 @@ bin/
 *.class
 *.log
 resultados*.csv
-grafico.png
