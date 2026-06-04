@@ -30,6 +30,8 @@ A abordagem escolhida foi a implementação de um programa único em Java que in
 
 **ParallelGPU**: Implementação com OpenCL utilizando a biblioteca JOCL (Java Bindings for OpenCL). O texto é enviado como um buffer para a GPU, onde um kernel escrito em C paralelizado divide o texto em chunks e cada work-item conta as ocorrências em sua porção. O kernel verifica corretamente limites de palavras para evitar contagens parciais.
 
+A plataforma de hardware utilizada conta com uma placa de vídeo **NVIDIA GTX 1650** (arquitetura Turing, 4 GB VRAM, 896 núcleos CUDA). Como esta GPU é compatível com OpenCL 1.2, foi possível utilizar a biblioteca JOCL para executar o kernel de contagem diretamente no dispositivo. A escolha do OpenCL se deve à sua portabilidade entre diferentes fabricantes de GPU (NVIDIA, AMD, Intel) e à sua integração com Java através da JOCL, permitindo explorar o paralelismo massivo da GPU sem depender exclusivamente da tecnologia CUDA (que exigiria código nativo em C/C++).
+
 ### Framework de Teste
 
 O programa executa automaticamente 3 amostras de cada configuração para cada arquivo de texto, totalizando:
