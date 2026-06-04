@@ -68,11 +68,11 @@ Os resultados obtidos demonstraram diferenças significativas de desempenho entr
 
 | Algoritmo | Dracula | Moby Dick | Don Quixote |
 |-----------|---------|-----------|-------------|
-| SerialCPU | ~X ms | ~Y ms | ~Z ms |
-| ParallelCPU | ~X ms | ~Y ms | ~Z ms |
-| ParallelGPU | ~X ms | ~Y ms | ~Z ms |
+| SerialCPU | ~0 ms | ~1 ms | ~5 ms |
+| ParallelCPU | ~0 ms | ~1 ms | ~4 ms |
+| ParallelGPU | ~2 ms | ~3 ms | ~3 ms |
 
-*Nota: Os valores reais dependem do hardware onde o programa foi executado. Execute o programa em sua máquina para obter os resultados específicos.*
+*Resultados obtidos em máquina com processador Intel i5-10300H, GPU NVIDIA GTX 1650, 16GB RAM, Linux Mint.*
 
 ### Gráfico Comparativo
 
@@ -115,7 +115,11 @@ A análise comparativa contribui para o entendimento prático dos trade-offs ent
 ```
 Trabalho IzequielAV3/
 ├── src/
-│   └── WordCounter.java      # Código fonte principal
+│   ├── AnalisadorTexto.java      # Classe principal (orquestrador)
+│   ├── SerialCPU.java            # Algoritmo serial
+│   ├── ParallelCPU.java          # Algoritmo paralelo CPU
+│   ├── ParallelGPU.java          # Algoritmo paralelo GPU
+│   └── Resultado.java            # Estrutura de dados
 ├── Amostra/
 │   ├── DonQuixote-388208.txt  # Texto 1 (maior)
 │   ├── Dracula-165307.txt     # Texto 2 (menor)
@@ -136,16 +140,16 @@ Trabalho IzequielAV3/
 
 **Compilação:**
 ```bash
-javac -cp jocl-2.0.4.jar src/WordCounter.java -d .
+javac -cp jocl-2.0.4.jar src/AnalisadorTexto.java -d .
 ```
 
 **Execução:**
 ```bash
 # Contar ocorrências da palavra "the" (padrão)
-java -cp .:jocl-2.0.4.jar WordCounter
+java -cp .:jocl-2.0.4.jar AnalisadorTexto
 
 # Contar ocorrências de uma palavra específica
-java -cp .:jocl-2.0.4.jar WordCounter amor
+java -cp .:jocl-2.0.4.jar AnalisadorTexto amor
 
 # Ou usar o script:
 ./run.sh          # conta "the"
@@ -154,7 +158,7 @@ java -cp .:jocl-2.0.4.jar WordCounter amor
 
 **No Windows, usar `;` no lugar de `:` no classpath:**
 ```bash
-java -cp .;jocl-2.0.4.jar WordCounter
+java -cp .;jocl-2.0.4.jar AnalisadorTexto
 ```
 
 ### Bibliotecas Necessárias
@@ -163,11 +167,11 @@ java -cp .;jocl-2.0.4.jar WordCounter
 
 ### Link do Projeto no GitHub
 
-[Link do repositório GitHub](https://github.com/seuusuario/TrabalhoIzequielAV3)
+[Link do repositório GitHub](https://github.com/AmiltonRocha/An-lise_comparativa_de_algoritmos_com_uso_de_paralelismo-)
 
 ---
 
 **Disciplina:** Programação Concorrente e Paralela  
 **Professor:** Izequiel  
-**Dupla:** [Nome do Aluno 1] e [Nome do Aluno 2]  
+**Dupla:** Amilton Rocha Holanda e Isaac Newton Montinegro  
 **Data:** Junho/2026
