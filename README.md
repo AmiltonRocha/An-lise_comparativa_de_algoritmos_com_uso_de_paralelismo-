@@ -141,12 +141,7 @@ Trabalho IzequielAV3/
 - OpenCL runtime (drivers da GPU)
 - Sistema operacional: Linux, Windows ou macOS
 
-**Compilação:**
-```bash
-javac -cp jocl-2.0.4.jar -d bin src/*.java
-```
-
-**Execução:**
+**Compilação e Execução:**
 ```bash
 # Compilar
 javac -cp jocl-2.0.4.jar -d bin src/*.java
