@@ -4,6 +4,8 @@ import java.util.*;
 import java.util.stream.*;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.*;
+import javax.imageio.*;
 
 public class AnalisadorTexto {
 
@@ -210,10 +212,18 @@ public class AnalisadorTexto {
             }
         }
 
+        PainelGrafico painel = new PainelGrafico(mediasGrafico);
+        painel.setSize(painel.getPreferredSize());
+        painel.doLayout();
+        BufferedImage img = new BufferedImage(painel.getWidth(), painel.getHeight(), BufferedImage.TYPE_INT_RGB);
+        painel.printAll(img.getGraphics());
+        ImageIO.write(img, "png", new File("grafico.png"));
+        System.out.println("Grafico salvo em: grafico.png");
+
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Analise de Desempenho");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.add(new PainelGrafico(mediasGrafico));
+            frame.add(painel);
             frame.pack();
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
