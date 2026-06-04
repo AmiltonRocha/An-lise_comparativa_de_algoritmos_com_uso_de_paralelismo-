@@ -163,7 +163,23 @@ java -cp .;jocl-2.0.4.jar AnalisadorTexto
 
 ### Bibliotecas Necessárias
 
-- **jocl-2.0.4.jar**: Biblioteca para bindings Java-OpenCL. Deve estar no diretório raiz do projeto ou no classpath. Já está incluída no repositório.
+O projeto utiliza **duas bibliotecas** externas:
+
+#### 1. JOCL (jocl-2.0.4.jar)
+- **O que é:** Biblioteca que faz a ponte entre Java e OpenCL, permitindo executar código na GPU diretamente da JVM.
+- **Import no código:** `import org.jocl.*;` e `import static org.jocl.CL.*;`
+- **Por que é necessária:** Sem ela, não é possível acessar a GPU pelo Java. O método `ParallelGPU` usa a JOCL para criar contexto, compilar kernel, transferir dados e executar na placa de vídeo.
+- **Onde colocar:** No diretório raiz do projeto (já está incluso no repositório). O classpath é configurado automaticamente pelo `run.sh` com o comando:
+  ```bash
+  javac -cp jocl-2.0.4.jar src/*.java -d bin
+  java -cp bin:jocl-2.0.4.jar AnalisadorTexto
+  ```
+
+#### 2. OpenCL Runtime (Driver da GPU)
+- **O que é:** Biblioteca nativa do sistema operacional que implementa a especificação OpenCL. Fornecida pelo fabricante da GPU (NVIDIA, AMD, Intel).
+- **Arquivo:** `libOpenCL.so` no Linux, `OpenCL.dll` no Windows, `OpenCL.framework` no macOS.
+- **Por que é necessária:** A JOCL carrega essa biblioteca nativa em tempo de execução para se comunicar com a GPU. Sem ela, o método `ParallelGPU` falha ao tentar obter dispositivos OpenCL.
+- **Onde colocar:** Já deve estar instalada com os drivers da GPU. No Linux, geralmente em `/usr/lib/x86_64-linux-gnu/libOpenCL.so`. É necessário que exista um link simbólico `libOpenCL.so` apontando para a versão instalada (ex: `libOpenCL.so.1`).
 
 ### Link do Projeto no GitHub
 
